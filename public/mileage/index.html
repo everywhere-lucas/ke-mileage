@@ -82,21 +82,19 @@
   .note{font-size:13px;color:var(--mute)}
   a{color:var(--blue)}
   footer{margin-top:18px;font-size:12px;color:var(--mute);text-align:center}
-  .warm{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:600px;margin:0 auto}
-  .wcard{position:relative;overflow:hidden;aspect-ratio:3/4;border:1px solid var(--line);border-radius:22px;padding:18px;background:#fff;text-align:left;font-family:inherit;cursor:pointer;color:var(--ink);display:flex;flex-direction:column;gap:4px}
+  .warm{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  .wcard{position:relative;overflow:hidden;aspect-ratio:3/4;border:1px solid var(--line);border-radius:20px;padding:14px;background:#fff;text-align:left;font-family:inherit;cursor:pointer;color:var(--ink);display:flex;flex-direction:column;gap:4px}
   .wcard:hover{border-color:var(--blue)}
-  .wcard .map{position:absolute;right:-8%;bottom:-6%;width:96%;height:auto;z-index:0;pointer-events:none}
-  .wcard .map path{fill:#e3eaff}
-  .wcard:hover .map path{fill:#d4e0ff}
   .wcard > span{position:relative;z-index:1}
   .wcard .country{font-size:13px;color:var(--mute);font-weight:700;margin-top:8px;display:flex;align-items:center;gap:6px}
   .wcard .flag{display:inline-flex;height:17px;border-radius:3px;overflow:hidden;box-shadow:0 0 0 1px rgba(15,23,42,.12);flex:none}
   .wcard .flag svg{height:17px;width:auto;display:block}
-  .wcard .city{font-size:20px;font-weight:800;letter-spacing:-.02em}
-  .wcard .temp{font-size:26px;font-weight:800;color:var(--blue);letter-spacing:-.02em;margin-top:2px}
+  .wcard .city{font-size:18px;font-weight:800;letter-spacing:-.02em}
+  .wcard .temp{font-size:22px;font-weight:800;color:var(--blue);letter-spacing:-.02em;margin-top:2px}
   .wcard .why{font-size:12px;color:#475569;line-height:1.45;margin-top:auto;background:rgba(255,255,255,.75);border-radius:10px;padding:6px 8px}
   .wcard .tag{align-self:flex-start;font-size:11px;font-weight:700;background:var(--neon);color:var(--ink);padding:3px 9px;border-radius:999px}
   .wcard .tag.off{background:#eef2f7;color:var(--mute)}
+  @media (max-width:520px){.wcard{padding:10px;border-radius:16px}.wcard .city{font-size:15px}.wcard .temp{font-size:17px}.wcard .why{font-size:11px;padding:4px 6px}.wcard .tag{font-size:10px;padding:2px 6px}}
   @media (max-width:520px){.d{min-height:62px;padding:4px}.d .s{font-size:10px}.d .s.big{font-size:12px}.tab{font-size:14px}}
 </style>
 </head>
@@ -319,8 +317,6 @@
     WARM.forEach(function(w){
       var f=findCity(w.code);if(!f)return;
       var b=el('button','wcard');b.type='button';
-      if(MAPS[w.map]){var ns='http://www.w3.org/2000/svg',sv=document.createElementNS(ns,'svg'),pa=document.createElementNS(ns,'path');
-        sv.setAttribute('viewBox','0 0 200 200');sv.setAttribute('class','map');sv.setAttribute('aria-hidden','true');pa.setAttribute('d',MAPS[w.map]);sv.appendChild(pa);b.appendChild(sv)}
       b.appendChild(el('span','tag'+(hasData(f.c)?'':' off'),hasData(f.c)?'좌석 정보 있음':'수집 예정'));
       var cn=el('span','country');if(FLAGS[w.map]){var fl=el('span','flag');fl.innerHTML=FLAGS[w.map];cn.appendChild(fl)}cn.appendChild(document.createTextNode(f.c.country));b.appendChild(cn);
       b.appendChild(el('span','city',f.c.name));
