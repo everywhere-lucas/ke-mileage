@@ -82,7 +82,7 @@
   .note{font-size:13px;color:var(--mute)}
   a{color:var(--blue)}
   footer{margin-top:18px;font-size:12px;color:var(--mute);text-align:center}
-  .warm{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .warm{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:600px;margin:0 auto}
   .wcard{position:relative;overflow:hidden;aspect-ratio:3/4;border:1px solid var(--line);border-radius:22px;padding:18px;background:#fff;text-align:left;font-family:inherit;cursor:pointer;color:var(--ink);display:flex;flex-direction:column;gap:4px}
   .wcard:hover{border-color:var(--blue)}
   .wcard .map{position:absolute;right:-8%;bottom:-6%;width:96%;height:auto;z-index:0;pointer-events:none}
@@ -95,7 +95,6 @@
   .wcard .why{font-size:12px;color:#475569;line-height:1.45;margin-top:auto;background:rgba(255,255,255,.75);border-radius:10px;padding:6px 8px}
   .wcard .tag{align-self:flex-start;font-size:11px;font-weight:700;background:var(--neon);color:var(--ink);padding:3px 9px;border-radius:999px}
   .wcard .tag.off{background:#eef2f7;color:var(--mute)}
-  @media (min-width:700px){.wcard{aspect-ratio:4/5}}
   @media (max-width:520px){.d{min-height:62px;padding:4px}.d .s{font-size:10px}.d .s.big{font-size:12px}.tab{font-size:14px}}
 </style>
 </head>
