@@ -66,7 +66,11 @@
   .d.pr .s.p{color:var(--neon);font-weight:700}
   .d.no{background:#eef2f7;color:#94a3b8;cursor:pointer}
   .d.unk{border:1px dashed var(--line)}
-  .d.peak::after{content:"";position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%;background:var(--peak)}
+  /* 성수기: 칸 자체를 붉은 계열로 (프레스티지석 있는 날은 파란색 유지 + 붉은 테두리) */
+  .d.peak{border-color:#fca5a5}
+  .d.peak.eco{background:#ffe4e6;color:#7f1d1d}
+  .d.peak.no{background:#fff1f2;color:#fca5a5}
+  .d.peak.pr{border:2px solid #f87171}
   .d.sel{outline:3px solid var(--neon);outline-offset:1px}
   .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--mute);margin-top:12px}
   .legend i{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-1px;margin-right:5px}
@@ -133,7 +137,7 @@
       <span><i style="background:#e8eeff"></i>일반석만 있음</span>
       <span><i style="background:#eef2f7"></i>좌석 없음</span>
       <span><i style="border:1px dashed var(--line)"></i>확인 안 함</span>
-      <span><i style="background:var(--peak);border-radius:50%;width:8px;height:8px"></i>성수기</span>
+      <span><i style="background:#ffe4e6;border:1px solid #fca5a5"></i>성수기 (마일 1.5배)</span>
     </div>
     <p class="note">칸 오른쪽 아래 큰 글씨 = 일반석 잔여 좌석, <b>(프 N석)</b> = 프레스티지석 잔여 좌석이에요. 대한항공은 항공편당 9석까지만 보여 줘서 9석 이상은 "9석+"로 표시합니다. 날짜를 누르면 항공편별로 볼 수 있어요.</p>
     <div class="detail" id="detail"></div>
