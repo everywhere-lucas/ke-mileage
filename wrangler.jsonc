@@ -1,0 +1,16 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ke-mileage",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  // 기존 홈페이지(website2)는 건드리지 않고 /mileage 경로만 이 Worker가 받는다
+  "routes": [
+    { "pattern": "everywherelucas.com/mileage*", "zone_name": "everywherelucas.com" }
+  ],
+  "workers_dev": true
+}

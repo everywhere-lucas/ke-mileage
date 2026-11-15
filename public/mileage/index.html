@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>대한항공 마일리지 좌석 달력</title>
+<style>
+  :root{--blue:#1447e6;--neon:#d7ff3a;--ink:#0f172a;--mute:#64748b;--line:#e2e8f0;--bg:#f6f8fc;--card:#fff;--peak:#ef4444}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+  .wrap{max-width:860px;margin:0 auto;padding:20px 16px 48px}
+  header{background:var(--blue);color:#fff;border-radius:20px;padding:24px 22px}
+  .badge{display:inline-block;background:var(--neon);color:var(--ink);font-weight:700;font-size:12px;padding:4px 10px;border-radius:999px}
+  h1{font-size:26px;margin:12px 0 6px;letter-spacing:-.02em}
+  header p{margin:0;opacity:.9;font-size:14px}
+  .stamp{margin-top:14px;font-size:13px;background:rgba(255,255,255,.14);display:inline-block;padding:6px 12px;border-radius:10px}
+  section{margin-top:18px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+  h2{font-size:17px;margin:0 0 12px}
+  .label{font-size:12px;color:var(--mute);margin:0 0 6px;font-weight:600}
+  .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:#eef2f7;padding:4px;border-radius:12px}
+  .tab{border:0;background:transparent;border-radius:9px;padding:10px 4px;font-size:15px;font-weight:600;color:var(--mute);cursor:pointer;font-family:inherit}
+  .tab[aria-selected="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(15,23,42,.12)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 13px;font-size:14px;cursor:pointer;color:var(--ink);font-family:inherit;display:flex;gap:6px;align-items:baseline}
+  .chip small{font-size:11px;color:var(--mute)}
+  .chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .chip[aria-pressed="true"] small{color:#cbd5e1}
+  .chip.soon{color:#94a3b8;border-style:dashed}
+  .route{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:18px 0 4px;flex-wrap:wrap}
+  .route b{font-size:20px}
+  .route span{color:var(--mute);font-size:13px;display:block}
+  .dir{display:flex;gap:4px;background:#eef2f7;padding:3px;border-radius:10px}
+  .dir button{border:0;background:transparent;border-radius:8px;padding:7px 12px;font-size:13px;font-weight:600;color:var(--mute);cursor:pointer;font-family:inherit}
+  .dir button[aria-pressed="true"]{background:#fff;color:var(--ink)}
+  .empty{margin-top:12px;border:1px dashed var(--line);border-radius:12px;padding:28px 16px;text-align:center;color:var(--mute);font-size:14px}
+  .month{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:12px}
+  .month h3{margin:0 0 8px;font-size:15px}
+  .month h3 small{font-weight:400;color:var(--mute);font-size:12px;margin-left:6px}
+  .grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+  .dow{font-size:11px;color:var(--mute);text-align:center;padding-bottom:2px}
+  .d{min-height:62px;border-radius:8px;border:1px solid transparent;font-family:inherit;display:flex;flex-direction:column;align-items:flex-start;position:relative;background:#fff;color:#94a3b8;cursor:default;padding:5px 6px;text-align:left;gap:1px}
+  .d .n{font-size:12px;font-weight:700}
+  .d .s{font-size:11px;line-height:1.25;white-space:nowrap}
+  .d.eco{background:#e8eeff;color:var(--ink);cursor:pointer}
+  .d.pr{background:var(--blue);color:#fff;cursor:pointer}
+  .d.pr .s.p{color:var(--neon);font-weight:700}
+  .d.no{background:#eef2f7;color:#94a3b8;cursor:pointer}
+  .d.unk{border:1px dashed var(--line)}
+  .d.peak::after{content:"";position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%;background:var(--peak)}
+  .d.sel{outline:3px solid var(--neon);outline-offset:1px}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--mute);margin-top:12px}
+  .legend i{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-1px;margin-right:5px}
+  .detail{margin-top:14px;border-radius:12px;background:#f1f5ff;padding:14px;font-size:14px}
+  .detail b{font-size:16px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--mute);font-weight:600;font-size:12px}
+  .detail table{margin-top:8px}
+  .detail th,.detail td{border-bottom:1px solid #dbe4ff}
+  ul{margin:0;padding-left:18px;font-size:14px}
+  li{margin:4px 0}
+  .note{font-size:13px;color:var(--mute)}
+  a{color:var(--blue)}
+  footer{margin-top:18px;font-size:12px;color:var(--mute);text-align:center}
+  .warm{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  .wcard{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff;text-align:left;font-family:inherit;cursor:pointer;color:var(--ink);display:flex;flex-direction:column;gap:4px}
+  .wcard:hover{border-color:var(--blue)}
+  .wcard .temp{font-size:22px;font-weight:800;color:var(--blue);letter-spacing:-.02em}
+  .wcard .city{font-size:16px;font-weight:700}
+  .wcard .why{font-size:12px;color:var(--mute);line-height:1.4}
+  .wcard .tag{align-self:flex-start;font-size:11px;font-weight:700;background:var(--neon);color:var(--ink);padding:2px 8px;border-radius:999px}
+  .wcard .tag.off{background:#eef2f7;color:var(--mute)}
+  @media (max-width:520px){.d{min-height:58px;padding:4px}.d .s{font-size:10px}.tab{font-size:14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="badge">비공식 조회 도구</span>
+    <h1>대한항공 마일리지 좌석 달력</h1>
+    <p>마일리지로 예매할 수 있는 보너스 좌석만 모았습니다. 일반석·프레스티지석 잔여 좌석을 날짜별로 확인하세요.</p>
+    <div class="stamp" id="stamp"></div>
+  </header>
+
+  <section>
+    <h2>겨울에 따뜻한 마일리지 여행지</h2>
+    <p class="note" style="margin-top:-6px">12~2월에 가기 좋은 곳이에요. 누르면 아래 달력에서 바로 좌석을 볼 수 있어요.</p>
+    <div class="warm" id="warm"></div>
+  </section>
+
+  <section id="calendarSection">
+    <p class="label">지역</p>
+    <div class="tabs" role="tablist" id="regions"></div>
+    <div class="chips" id="cities"></div>
+
+    <div class="route">
+      <div><b id="rTitle"></b><span id="rSub"></span></div>
+      <div class="dir" id="dir"></div>
+    </div>
+    <div id="cal"></div>
+    <div class="legend">
+      <span><i style="background:var(--blue)"></i>프레스티지석 있음</span>
+      <span><i style="background:#e8eeff"></i>일반석만 있음</span>
+      <span><i style="background:#eef2f7"></i>좌석 없음</span>
+      <span><i style="border:1px dashed var(--line)"></i>확인 안 함</span>
+      <span><i style="background:var(--peak);border-radius:50%;width:8px;height:8px"></i>성수기</span>
+    </div>
+    <p class="note">일 = 일반석, 프 = 프레스티지석. 숫자는 그날 항공편들의 잔여 좌석 합계예요. 대한항공은 항공편당 9석까지만 보여 줘서 9석인 편이 있으면 "+"를 붙였습니다.</p>
+    <div class="detail" id="detail"></div>
+  </section>
+
+  <section>
+    <h2>필요 마일 (편도, 대한항공 화면 표시값)</h2>
+    <table>
+      <thead><tr><th>미주 노선 예시 (인천 → 로스앤젤레스)</th><th>평수기</th><th>성수기</th></tr></thead>
+      <tbody>
+        <tr><td>일반석</td><td>35,000</td><td>52,500</td></tr>
+        <tr><td>프레스티지석</td><td>62,500</td><td>92,500</td></tr>
+        <tr><td>일등석</td><td>80,000</td><td>120,000</td></tr>
+      </tbody>
+    </table>
+    <p class="note">노선 거리에 따라 다릅니다. 세금과 유류할증료는 별도예요.</p>
+  </section>
+
+  <section>
+    <h2>이용 안내</h2>
+    <ul>
+      <li>대한항공 공식 서비스가 아닙니다. 대한항공 홈페이지 마일리지 예매 화면의 조회 결과를 옮겨 적은 자료예요.</li>
+      <li>실시간 정보가 아닙니다. 예매 전에 <a href="https://www.koreanair.com/">대한항공 홈페이지</a>에서 다시 확인하세요.</li>
+      <li>"수집 예정" 도시는 아직 데이터가 없습니다.</li>
+      <li>2026년 12월 17일 출발편부터 아시아나 운항편이 대한항공(KE) 편명으로 바뀝니다.</li>
+    </ul>
+  </section>
+
+  <footer>루카스 여행 · @everywhere.lucas</footer>
+</div>
+
+<script>
+(function(){
+  var AC={'74H':'B747-8','388':'A380-800','77W':'B777-300ER','789':'B787-9','78J':'B787-10','359':'A350-900','333':'A330-300','339':'A330-900'};
+
+  /* data.json → 화면용 형태로 변환
+     f=[편명, 출발시각, 기종, 일반석, 프레스티지석, 일등석] → { counted, flights }
+     a=1/0 → { avail },  p=1 → peak */
+  function convert(days){
+    var m={};
+    Object.keys(days||{}).forEach(function(k){
+      var d=days[k],o={peak:!!d.p};
+      if(d.f){o.counted=true;o.flights=d.f.map(function(x){return {no:x[0],t:x[1],ac:x[2],eco:x[3],pr:x[4],fc:x[5]}})}
+      else o.avail=!!d.a;
+      m[k]=o;
+    });
+    return m;
+  }
+  function kst(iso){
+    try{var d=new Date(iso);return new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',month:'long',day:'numeric',hour:'numeric',minute:'2-digit'}).format(d)+' (KST)'}catch(e){return iso}
+  }
+
+  var REGIONS=[
+    {id:'us',name:'미국',cities:[
+      {code:'JFK',name:'뉴욕',country:'미국'},
+      {code:'LAX',name:'로스앤젤레스',country:'미국'},
+      {code:'SFO',name:'샌프란시스코',country:'미국'},
+      {code:'IAD',name:'워싱턴',country:'미국'}]},
+    {id:'eu',name:'유럽',cities:[
+      {code:'CDG',name:'파리',country:'프랑스'},
+      {code:'FCO',name:'로마',country:'이탈리아'},
+      {code:'MXP',name:'밀라노',country:'이탈리아'},
+      {code:'LIS',name:'리스본',country:'포르투갈'}]},
+    {id:'au',name:'호주',cities:[
+      {code:'SYD',name:'시드니',country:'호주'},
+      {code:'BNE',name:'브리즈번',country:'호주'}]}
+  ];
+
+  var region=REGIONS[0],city=region.cities[0],dir='out',sel=null;
+  var $=function(id){return document.getElementById(id)};
+  function hasData(c){return !!(c.out||c.back)}
+  function seat(n){return n>=9?'9석 이상':n+'석'}
+  function total(info,key){var s=0,plus=false;info.flights.forEach(function(f){s+=f[key];if(f[key]>=9)plus=true});return {n:s,txt:s+(plus?'+':'')}}
+  function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+
+  function renderRegions(){
+    var box=$('regions');box.innerHTML='';
+    REGIONS.forEach(function(r){
+      var b=el('button','tab',r.name);b.type='button';b.setAttribute('role','tab');b.setAttribute('aria-selected',r===region?'true':'false');
+      b.addEventListener('click',function(){region=r;city=r.cities.filter(hasData)[0]||r.cities[0];dir='out';sel=null;render()});
+      box.appendChild(b);
+    });
+  }
+  function renderCities(){
+    var box=$('cities');box.innerHTML='';
+    region.cities.forEach(function(c){
+      var b=el('button','chip'+(hasData(c)?'':' soon'));b.type='button';b.setAttribute('aria-pressed',c===city?'true':'false');
+      b.appendChild(document.createTextNode(c.name));b.appendChild(el('small','',hasData(c)?c.country:c.country+' · 수집 예정'));
+      b.addEventListener('click',function(){city=c;dir='out';sel=null;render()});
+      box.appendChild(b);
+    });
+  }
+  function renderRoute(){
+    $('rTitle').textContent='인천 ⇄ '+city.name;
+    var ck=dir==='out'?city.outChecked:city.backChecked;$('rSub').textContent='ICN ⇄ '+city.code+' · '+city.country+(ck?' · 확인 '+kst(ck):'');
+    var box=$('dir');box.innerHTML='';
+    [['out','가는 편'],['back','오는 편']].forEach(function(d){
+      var b=el('button','',d[1]);b.type='button';b.setAttribute('aria-pressed',dir===d[0]?'true':'false');
+      b.addEventListener('click',function(){dir=d[0];sel=null;render()});box.appendChild(b);
+    });
+  }
+  function renderCal(){
+    var box=$('cal');box.innerHTML='';
+    var data=city[dir];
+    if(!data){box.appendChild(el('div','empty',(dir==='out'?'인천 → '+city.name:city.name+' → 인천')+' 좌석은 아직 수집하지 않았어요.'));return}
+    var keys=Object.keys(data).sort(),months=[];
+    keys.forEach(function(k){var m=k.slice(0,7);if(months.indexOf(m)<0)months.push(m)});
+    months.forEach(function(m){
+      var y=+m.slice(0,4),mo=+m.slice(5,7);
+      var counted=keys.some(function(k){return k.slice(0,7)===m&&data[k].counted});
+      var card=el('div','month'),h=el('h3','',y+'년 '+mo+'월');
+      h.appendChild(el('small','',counted?'좌석 수 확인':'일반석 좌석 유무만 확인'));card.appendChild(h);
+      var g=el('div','grid');
+      '일월화수목금토'.split('').forEach(function(w){g.appendChild(el('div','dow',w))});
+      var first=new Date(y,mo-1,1).getDay(),last=new Date(y,mo,0).getDate();
+      for(var i=0;i<first;i++)g.appendChild(el('div'));
+      for(var d=1;d<=last;d++){
+        var key=m+'-'+String(d).padStart(2,'0'),info=data[key],cls='unk',lines=[],label=mo+'월 '+d+'일';
+        if(info&&info.counted){var e=total(info,'eco'),p=total(info,'pr');cls=p.n>0?'pr':(e.n>0?'eco':'no');lines=[['','일 '+e.txt],['p','프 '+p.txt]];label+=' 일반석 '+e.txt+'석 프레스티지석 '+p.txt+'석'}
+        else if(info){cls=info.avail?'eco':'no';lines=[['',info.avail?'일 있음':'없음']];label+=info.avail?' 일반석 있음':' 좌석 없음'}
+        var c=el(info?'button':'div','d '+cls+(info&&info.peak?' peak':'')+(sel===key?' sel':''));
+        c.appendChild(el('span','n',d));lines.forEach(function(l){c.appendChild(el('span','s '+l[0],l[1]))});
+        if(info){c.type='button';c.setAttribute('aria-label',label+(info.peak?' 성수기':''));(function(k){c.addEventListener('click',function(){sel=k;renderCal();renderDetail()})})(key)}
+        g.appendChild(c);
+      }
+      card.appendChild(g);box.appendChild(card);
+    });
+  }
+  function renderDetail(){
+    var box=$('detail'),data=city[dir];
+    if(!data||!sel){box.textContent=data?'날짜를 누르면 항공편별 잔여 좌석과 기종을 볼 수 있어요.':'이 노선은 데이터가 모이면 표시됩니다.';return}
+    var info=data[sel],p=sel.split('-'),dow='일월화수목금토'[new Date(sel+'T00:00:00').getDay()];
+    var html='<b>'+(+p[1])+'월 '+(+p[2])+'일 ('+dow+') · '+(dir==='out'?'인천 → '+city.name:city.name+' → 인천')+(info.peak?' · 성수기':'')+'</b>';
+    if(info.counted){
+      html+='<table><thead><tr><th>항공편</th><th>기종</th><th>일반석</th><th>프레스티지석</th><th>일등석</th></tr></thead><tbody>';
+      info.flights.forEach(function(f){html+='<tr><td>'+f.no+' · '+f.t+'</td><td>'+(AC[f.ac]||f.ac)+'</td><td>'+seat(f.eco)+'</td><td>'+seat(f.pr)+'</td><td>'+seat(f.fc)+'</td></tr>'});
+      html+='</tbody></table>';
+    }else{
+      html+='<p style="margin:8px 0 0">'+(info.avail?'일반석 보너스 좌석 있음. 좌석 수와 프레스티지석은 아직 확인하지 않았어요.':'대한항공 달력에 좌석 없음으로 표시된 날이에요.')+'</p>';
+    }
+    box.innerHTML=html;
+  }
+  function render(){renderRegions();renderCities();renderRoute();renderCal();renderDetail()}
+
+  // 겨울(12~2월) 따뜻한 여행지: 낮 기온은 평년 기준 대략값
+  var WARM=[
+    {code:'SYD',temp:'26°C 안팎',why:'남반구 한여름. 해변, 새해 불꽃놀이'},
+    {code:'BNE',temp:'29°C 안팎',why:'따뜻하고 화창한 한여름 날씨'},
+    {code:'LAX',temp:'20°C 안팎',why:'비가 적고 온화해 돌아다니기 좋음'},
+    {code:'LIS',temp:'15°C 안팎',why:'유럽 겨울 중 가장 따뜻한 편. 비는 잦음'},
+    {code:'FCO',temp:'13°C 안팎',why:'관광객이 적어 명소 줄이 짧음'}
+  ];
+  function findCity(code){for(var i=0;i<REGIONS.length;i++){for(var j=0;j<REGIONS[i].cities.length;j++){if(REGIONS[i].cities[j].code===code)return {r:REGIONS[i],c:REGIONS[i].cities[j]}}}return null}
+  function renderWarm(){
+    var box=$('warm');box.innerHTML='';
+    WARM.forEach(function(w){
+      var f=findCity(w.code);if(!f)return;
+      var b=el('button','wcard');b.type='button';
+      b.appendChild(el('span','tag'+(hasData(f.c)?'':' off'),hasData(f.c)?'좌석 정보 있음':'수집 예정'));
+      b.appendChild(el('span','city',f.c.name));
+      b.appendChild(el('span','temp',w.temp));
+      b.appendChild(el('span','why',w.why));
+      b.addEventListener('click',function(){region=f.r;city=f.c;dir='out';sel=null;render();
+        var s=$('calendarSection');if(s&&s.scrollIntoView)s.scrollIntoView({behavior:'smooth',block:'start'})});
+      box.appendChild(b);
+    });
+  }
+  function applyData(data){
+    var routes=(data&&data.routes)||{};
+    REGIONS.forEach(function(r){r.cities.forEach(function(c){
+      var rt=routes[c.code];if(!rt)return;
+      if(rt.out){c.out=convert(rt.out.days);c.outChecked=rt.out.checked}
+      if(rt.back){c.back=convert(rt.back.days);c.backChecked=rt.back.checked}
+    })});
+    region=REGIONS.filter(function(r){return r.cities.some(hasData)})[0]||REGIONS[0];
+    city=region.cities.filter(hasData)[0]||region.cities[0];
+    $('stamp').textContent=data&&data.updated?'마지막 업데이트: '+kst(data.updated):'데이터를 불러오지 못했어요';
+  }
+  $('stamp').textContent='불러오는 중…';
+  fetch('./data.json',{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json()})
+    .then(applyData).catch(function(){applyData(null)})
+    .then(function(){renderWarm();render()});
+})();
+</script>
+</body>
+</html>
