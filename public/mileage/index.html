@@ -9,7 +9,13 @@
   *{box-sizing:border-box}
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
   .wrap{max-width:860px;margin:0 auto;padding:20px 16px 48px}
-  header{background:var(--blue);color:#fff;border-radius:20px;padding:24px 22px}
+  header{background:var(--blue);color:#fff;border-radius:20px;padding:24px 22px;position:relative;overflow:hidden}
+  header > *:not(.hero){position:relative;z-index:1}
+  .hero{position:absolute;right:-10px;bottom:-6px;width:260px;height:170px;opacity:.95;pointer-events:none}
+  .hero .plane{animation:takeoff 4s ease-in-out infinite alternate}
+  @keyframes takeoff{from{transform:translate(0,6px)}to{transform:translate(10px,-6px)}}
+  @media (prefers-reduced-motion:reduce){.hero .plane{animation:none}}
+  @media (max-width:560px){.hero{width:170px;height:112px;opacity:.35}}
   .badges{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
   .ig{display:inline-flex;align-items:center;gap:5px;background:#fff;color:var(--blue);font-weight:700;font-size:12px;padding:4px 10px;border-radius:999px;text-decoration:none}
   .ig:hover{background:var(--neon);color:var(--ink)}
@@ -50,8 +56,9 @@
   .d{min-height:62px;border-radius:8px;border:1px solid transparent;font-family:inherit;display:flex;flex-direction:column;align-items:flex-start;position:relative;background:#fff;color:#94a3b8;cursor:default;padding:5px 6px;text-align:left;gap:1px}
   .d .n{font-size:12px;font-weight:700}
   .d .s{font-size:11px;line-height:1.25;white-space:nowrap}
-  .d .s.big{font-size:15px;font-weight:800;margin-top:2px}
-  .d .s.p{font-size:13px;font-weight:800}
+  .d .seat{margin-top:auto;display:flex;flex-direction:column;align-items:flex-start;line-height:1.2}
+  .d .s.big{font-size:14px;font-weight:800}
+  .d .s.p{font-size:12px;font-weight:800}
   .d.eco{background:#e8eeff;color:var(--ink);cursor:pointer}
   .d.pr{background:var(--blue);color:#fff;cursor:pointer}
   .d.pr .s.p{color:var(--neon);font-weight:700}
@@ -81,14 +88,33 @@
   .wcard .why{font-size:12px;color:var(--mute);line-height:1.4}
   .wcard .tag{align-self:flex-start;font-size:11px;font-weight:700;background:var(--neon);color:var(--ink);padding:2px 8px;border-radius:999px}
   .wcard .tag.off{background:#eef2f7;color:var(--mute)}
-  @media (max-width:520px){.d{min-height:58px;padding:4px}.d .s{font-size:10px}.tab{font-size:14px}}
+  @media (max-width:520px){.d{min-height:62px;padding:4px}.d .s{font-size:10px}.d .s.big{font-size:12px}.tab{font-size:14px}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
+    <svg class="hero" viewBox="0 0 260 170" aria-hidden="true">
+      <!-- 활주로 -->
+      <path d="M0 160 L260 140" stroke="rgba(255,255,255,.35)" stroke-width="3"/>
+      <path d="M20 157 L50 154 M80 151 L110 148 M140 145 L170 142" stroke="rgba(255,255,255,.6)" stroke-width="3" stroke-linecap="round"/>
+      <!-- 이륙 궤적 -->
+      <path d="M30 150 Q120 140 200 70" fill="none" stroke="#d7ff3a" stroke-width="2.5" stroke-dasharray="6 7" stroke-linecap="round"/>
+      <!-- 비행기 -->
+      <g class="plane">
+        <g transform="translate(196 62) rotate(-32)">
+          <path d="M-42 0 C-42 -6 -36 -9 -28 -9 L30 -9 C40 -9 48 -5 50 0 C48 5 40 9 30 9 L-28 9 C-36 9 -42 6 -42 0Z" fill="#fff"/>
+          <path d="M-4 -8 L-22 -40 L-12 -40 L16 -8Z" fill="#fff"/>
+          <path d="M-4 8 L-22 40 L-12 40 L16 8Z" fill="#e2e8f0"/>
+          <path d="M-36 -6 L-46 -26 L-38 -26 L-26 -7Z" fill="#fff"/>
+          <circle cx="36" cy="-2" r="2.6" fill="#1447e6"/><circle cx="26" cy="-2" r="2.6" fill="#1447e6"/><circle cx="16" cy="-2" r="2.6" fill="#1447e6"/><circle cx="6" cy="-2" r="2.6" fill="#1447e6"/>
+        </g>
+      </g>
+      <!-- 구름 -->
+      <g fill="rgba(255,255,255,.22)"><ellipse cx="70" cy="40" rx="26" ry="10"/><ellipse cx="88" cy="34" rx="16" ry="10"/><ellipse cx="225" cy="120" rx="22" ry="8"/></g>
+    </svg>
     <div class="badges">
-      <span class="badge">루카스가 불편해서 만든 비공식 캘린더</span>
+      <span class="badge">불편해서 만든 비공식 캘린더</span>
       <a class="ig" href="https://www.instagram.com/everywhere.lucas/" target="_blank" rel="noopener">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
         @everywhere.lucas
@@ -116,7 +142,7 @@
       <span><i style="border:1px dashed var(--line)"></i>확인 안 함</span>
       <span><i style="background:var(--peak);border-radius:50%;width:8px;height:8px"></i>성수기</span>
     </div>
-    <p class="note">큰 숫자 = 일반석 잔여 좌석, <b>(괄호)</b> = 프레스티지석 잔여 좌석이에요. 대한항공은 항공편당 9석까지만 보여 줘서 9석 이상은 "9+"로 표시합니다. 날짜를 누르면 항공편별로 볼 수 있어요.</p>
+    <p class="note">칸 왼쪽 아래 큰 글씨 = 일반석 잔여 좌석, <b>(프 N석)</b> = 프레스티지석 잔여 좌석이에요. 대한항공은 항공편당 9석까지만 보여 줘서 9석 이상은 "9석+"로 표시합니다. 날짜를 누르면 항공편별로 볼 수 있어요.</p>
     <div class="detail" id="detail"></div>
   </section>
 
@@ -253,12 +279,12 @@
     for(var d=1;d<=last;d++){
       var key=m+'-'+String(d).padStart(2,'0'),info=key<TODAY?null:data[key],cls=key<TODAY?'past':'unk',lines=[],label=mo+'월 '+d+'일';
       if(info&&info.counted){var e=total(info,'eco'),p=total(info,'pr');cls=p.n>0?'pr':(e.n>0?'eco':'no');
-        var et=e.n===0?'없음':(e.n>=9||e.txt.indexOf('+')>0?'9+':String(e.n));
-        lines=[['big',et]];if(p.n>0)lines.push(['p','('+(p.n>=9?'9+':p.n)+')']);
+        var et=e.n===0?'없음':(e.n>=9||e.txt.indexOf('+')>0?'9석+':e.n+'석');
+        lines=[['big',et]];if(p.n>0)lines.push(['p','(프 '+(p.n>=9?'9석+':p.n+'석')+')']);
         label+=' 일반석 '+(e.n===0?'없음':et+'석')+(p.n>0?', 프레스티지석 '+p.n+'석':'')}
-      else if(info){cls=info.avail?'eco':'no';lines=[['',info.avail?'일 있음':'없음']];label+=info.avail?' 일반석 있음':' 좌석 없음'}
+      else if(info){cls=info.avail?'eco':'no';lines=[['',info.avail?'좌석 있음':'없음']];label+=info.avail?' 일반석 있음':' 좌석 없음'}
       var c=el(info?'button':'div','d '+cls+(info&&info.peak?' peak':'')+(sel===key?' sel':''));
-      c.appendChild(el('span','n',d));lines.forEach(function(l){c.appendChild(el('span','s '+l[0],l[1]))});
+      c.appendChild(el('span','n',d));if(lines.length){var sw=el('span','seat');lines.forEach(function(l){sw.appendChild(el('span','s '+l[0],l[1]))});c.appendChild(sw)}
       if(info){c.type='button';c.setAttribute('aria-label',label+(info.peak?' 성수기':''));(function(k){c.addEventListener('click',function(){sel=k;renderCal();renderDetail()})})(key)}
       g.appendChild(c);
     }
