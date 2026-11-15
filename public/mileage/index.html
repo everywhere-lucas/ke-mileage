@@ -36,6 +36,12 @@
   .month{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:12px}
   .month h3{margin:0 0 8px;font-size:15px}
   .month h3 small{font-weight:400;color:var(--mute);font-size:12px;margin-left:6px}
+  .mnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .mnav h3{margin:0;font-size:16px;text-align:center;flex:1}
+  .mnav h3 small{display:block;margin:2px 0 0}
+  .mnav button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:18px;cursor:pointer;color:var(--ink);font-family:inherit}
+  .mnav button:disabled{color:#cbd5e1;cursor:not-allowed;background:#f8fafc}
+  .d.past{background:transparent;color:#cbd5e1;border-color:transparent}
   .grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
   .dow{font-size:11px;color:var(--mute);text-align:center;padding-bottom:2px}
   .d{min-height:62px;border-radius:8px;border:1px solid transparent;font-family:inherit;display:flex;flex-direction:column;align-items:flex-start;position:relative;background:#fff;color:#94a3b8;cursor:default;padding:5px 6px;text-align:left;gap:1px}
@@ -82,12 +88,6 @@
     <div class="stamp" id="stamp"></div>
   </header>
 
-  <section>
-    <h2>겨울에 따뜻한 마일리지 여행지</h2>
-    <p class="note" style="margin-top:-6px">12~2월에 가기 좋은 곳이에요. 누르면 아래 달력에서 바로 좌석을 볼 수 있어요.</p>
-    <div class="warm" id="warm"></div>
-  </section>
-
   <section id="calendarSection">
     <p class="label">지역</p>
     <div class="tabs" role="tablist" id="regions"></div>
@@ -107,6 +107,12 @@
     </div>
     <p class="note">일 = 일반석, 프 = 프레스티지석. 숫자는 그날 항공편들의 잔여 좌석 합계예요. 대한항공은 항공편당 9석까지만 보여 줘서 9석인 편이 있으면 "+"를 붙였습니다.</p>
     <div class="detail" id="detail"></div>
+  </section>
+
+  <section>
+    <h2>겨울에 따뜻한 마일리지 여행지</h2>
+    <p class="note" style="margin-top:-6px">12~2월에 가기 좋은 곳이에요. 누르면 위 달력에서 바로 좌석을 볼 수 있어요.</p>
+    <div class="warm" id="warm"></div>
   </section>
 
   <section>
@@ -183,7 +189,7 @@
     var box=$('regions');box.innerHTML='';
     REGIONS.forEach(function(r){
       var b=el('button','tab',r.name);b.type='button';b.setAttribute('role','tab');b.setAttribute('aria-selected',r===region?'true':'false');
-      b.addEventListener('click',function(){region=r;city=r.cities.filter(hasData)[0]||r.cities[0];dir='out';sel=null;render()});
+      b.addEventListener('click',function(){region=r;city=r.cities.filter(hasData)[0]||r.cities[0];dir='out';sel=null;curM=startMonth();render()});
       box.appendChild(b);
     });
   }
@@ -192,7 +198,7 @@
     region.cities.forEach(function(c){
       var b=el('button','chip'+(hasData(c)?'':' soon'));b.type='button';b.setAttribute('aria-pressed',c===city?'true':'false');
       b.appendChild(document.createTextNode(c.name));b.appendChild(el('small','',hasData(c)?c.country:c.country+' · 수집 예정'));
-      b.addEventListener('click',function(){city=c;dir='out';sel=null;render()});
+      b.addEventListener('click',function(){city=c;dir='out';sel=null;curM=startMonth();render()});
       box.appendChild(b);
     });
   }
@@ -202,35 +208,47 @@
     var box=$('dir');box.innerHTML='';
     [['out','가는 편'],['back','오는 편']].forEach(function(d){
       var b=el('button','',d[1]);b.type='button';b.setAttribute('aria-pressed',dir===d[0]?'true':'false');
-      b.addEventListener('click',function(){dir=d[0];sel=null;render()});box.appendChild(b);
+      b.addEventListener('click',function(){dir=d[0];sel=null;curM=startMonth();render()});box.appendChild(b);
     });
   }
+  function ym(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
+  function addMonth(m,n){var d=new Date(+m.slice(0,4),+m.slice(5,7)-1+n,1);return ym(d)}
+  var TODAY=(function(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')})();
+  var MIN_M=TODAY.slice(0,7),MAX_M=addMonth(MIN_M,11); // 대한항공 보너스 좌석은 약 1년 전부터 열림
+  var curM=MIN_M;
+  // 고른 노선에서 오늘 이후 데이터가 있는 첫 달(없으면 이번 달)
+  function startMonth(){var d=city[dir];if(!d)return MIN_M;var ks=Object.keys(d).filter(function(k){return k>=TODAY}).sort();return ks.length?ks[0].slice(0,7):MIN_M}
   function renderCal(){
     var box=$('cal');box.innerHTML='';
     var data=city[dir];
     if(!data){box.appendChild(el('div','empty',(dir==='out'?'인천 → '+city.name:city.name+' → 인천')+' 좌석은 아직 수집하지 않았어요.'));return}
-    var keys=Object.keys(data).sort(),months=[];
-    keys.forEach(function(k){var m=k.slice(0,7);if(months.indexOf(m)<0)months.push(m)});
-    months.forEach(function(m){
-      var y=+m.slice(0,4),mo=+m.slice(5,7);
-      var counted=keys.some(function(k){return k.slice(0,7)===m&&data[k].counted});
-      var card=el('div','month'),h=el('h3','',y+'년 '+mo+'월');
-      h.appendChild(el('small','',counted?'좌석 수 확인':'일반석 좌석 유무만 확인'));card.appendChild(h);
-      var g=el('div','grid');
-      '일월화수목금토'.split('').forEach(function(w){g.appendChild(el('div','dow',w))});
-      var first=new Date(y,mo-1,1).getDay(),last=new Date(y,mo,0).getDate();
-      for(var i=0;i<first;i++)g.appendChild(el('div'));
-      for(var d=1;d<=last;d++){
-        var key=m+'-'+String(d).padStart(2,'0'),info=data[key],cls='unk',lines=[],label=mo+'월 '+d+'일';
-        if(info&&info.counted){var e=total(info,'eco'),p=total(info,'pr');cls=p.n>0?'pr':(e.n>0?'eco':'no');lines=[['','일 '+e.txt],['p','프 '+p.txt]];label+=' 일반석 '+e.txt+'석 프레스티지석 '+p.txt+'석'}
-        else if(info){cls=info.avail?'eco':'no';lines=[['',info.avail?'일 있음':'없음']];label+=info.avail?' 일반석 있음':' 좌석 없음'}
-        var c=el(info?'button':'div','d '+cls+(info&&info.peak?' peak':'')+(sel===key?' sel':''));
-        c.appendChild(el('span','n',d));lines.forEach(function(l){c.appendChild(el('span','s '+l[0],l[1]))});
-        if(info){c.type='button';c.setAttribute('aria-label',label+(info.peak?' 성수기':''));(function(k){c.addEventListener('click',function(){sel=k;renderCal();renderDetail()})})(key)}
-        g.appendChild(c);
-      }
-      card.appendChild(g);box.appendChild(card);
-    });
+    if(curM<MIN_M)curM=MIN_M;if(curM>MAX_M)curM=MAX_M;
+    var m=curM,y=+m.slice(0,4),mo=+m.slice(5,7);
+    var keys=Object.keys(data).filter(function(k){return k.slice(0,7)===m});
+    var counted=keys.some(function(k){return data[k].counted});
+    var card=el('div','month');
+    var nav=el('div','mnav');
+    var prev=el('button','','‹');prev.type='button';prev.setAttribute('aria-label','이전 달');prev.disabled=m<=MIN_M;
+    var next=el('button','','›');next.type='button';next.setAttribute('aria-label','다음 달');next.disabled=m>=MAX_M;
+    prev.addEventListener('click',function(){curM=addMonth(curM,-1);sel=null;renderCal();renderDetail()});
+    next.addEventListener('click',function(){curM=addMonth(curM,1);sel=null;renderCal();renderDetail()});
+    var h3=el('h3','',y+'년 '+mo+'월');
+    h3.appendChild(el('small','',!keys.length?'아직 확인 안 한 달':(counted?'좌석 수 확인':'일반석 좌석 유무만 확인')));
+    nav.appendChild(prev);nav.appendChild(h3);nav.appendChild(next);card.appendChild(nav);
+    var g=el('div','grid');
+    '일월화수목금토'.split('').forEach(function(w){g.appendChild(el('div','dow',w))});
+    var first=new Date(y,mo-1,1).getDay(),last=new Date(y,mo,0).getDate();
+    for(var i=0;i<first;i++)g.appendChild(el('div'));
+    for(var d=1;d<=last;d++){
+      var key=m+'-'+String(d).padStart(2,'0'),info=key<TODAY?null:data[key],cls=key<TODAY?'past':'unk',lines=[],label=mo+'월 '+d+'일';
+      if(info&&info.counted){var e=total(info,'eco'),p=total(info,'pr');cls=p.n>0?'pr':(e.n>0?'eco':'no');lines=[['','일 '+e.txt],['p','프 '+p.txt]];label+=' 일반석 '+e.txt+'석 프레스티지석 '+p.txt+'석'}
+      else if(info){cls=info.avail?'eco':'no';lines=[['',info.avail?'일 있음':'없음']];label+=info.avail?' 일반석 있음':' 좌석 없음'}
+      var c=el(info?'button':'div','d '+cls+(info&&info.peak?' peak':'')+(sel===key?' sel':''));
+      c.appendChild(el('span','n',d));lines.forEach(function(l){c.appendChild(el('span','s '+l[0],l[1]))});
+      if(info){c.type='button';c.setAttribute('aria-label',label+(info.peak?' 성수기':''));(function(k){c.addEventListener('click',function(){sel=k;renderCal();renderDetail()})})(key)}
+      g.appendChild(c);
+    }
+    card.appendChild(g);box.appendChild(card);
   }
   function renderDetail(){
     var box=$('detail'),data=city[dir];
@@ -266,7 +284,7 @@
       b.appendChild(el('span','city',f.c.name));
       b.appendChild(el('span','temp',w.temp));
       b.appendChild(el('span','why',w.why));
-      b.addEventListener('click',function(){region=f.r;city=f.c;dir='out';sel=null;render();
+      b.addEventListener('click',function(){region=f.r;city=f.c;dir='out';sel=null;curM=startMonth();render();
         var s=$('calendarSection');if(s&&s.scrollIntoView)s.scrollIntoView({behavior:'smooth',block:'start'})});
       box.appendChild(b);
     });
@@ -285,7 +303,7 @@
   $('stamp').textContent='불러오는 중…';
   fetch('./data.json',{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json()})
     .then(applyData).catch(function(){applyData(null)})
-    .then(function(){renderWarm();render()});
+    .then(function(){curM=startMonth();renderWarm();render()});
 })();
 </script>
 </body>
