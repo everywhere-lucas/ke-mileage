@@ -18,7 +18,7 @@
 // - calendarFareMatrix(31일 달력)는 직접 호출하면 403 이라 쓰지 않는다.
 
 (function () {
-  const ROUTES = ['JFK', 'LAX', 'SFO', 'CDG', 'FCO', 'LIS', 'SYD', 'BNE'];
+  const ROUTES = ['JFK', 'LAX', 'CDG', 'FCO', 'LIS', 'SYD', 'BNE'];
   // 방향 순서(인덱스 0~25): JFK out, JFK back, LAX out, ...
   const DIRS = [];
   ROUTES.forEach(c => { DIRS.push([c, 'out']); DIRS.push([c, 'back']); });
