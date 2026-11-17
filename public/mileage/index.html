@@ -167,6 +167,7 @@
     <ul>
       <li>대한항공 공식 서비스가 아닙니다. 대한항공 홈페이지 마일리지 예매 화면의 조회 결과를 옮겨 적은 자료예요.</li>
       <li>실시간 정보가 아닙니다. 좌석 데이터는 주 2~3회 갱신하므로 그 사이에 좌석이 생기거나 없어질 수 있어요. 예매 전에 <a href="https://www.koreanair.com/">대한항공 홈페이지</a>에서 다시 확인하세요.</li>
+      <li>오늘부터 약 4개월 뒤 출발편까지만 보여 드려요.</li>
       <li>"수집 예정" 도시는 아직 데이터가 없습니다.</li>
       <li>2026년 12월 17일 출발편부터 아시아나 운항편이 대한항공(KE) 편명으로 바뀝니다.</li>
     </ul>
@@ -248,7 +249,9 @@
   function ym(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
   function addMonth(m,n){var d=new Date(+m.slice(0,4),+m.slice(5,7)-1+n,1);return ym(d)}
   var TODAY=(function(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')})();
-  var MIN_M=TODAY.slice(0,7),MAX_M=addMonth(MIN_M,11); // 대한항공 보너스 좌석은 약 1년 전부터 열림
+  var RANGE_DAYS=120; // 오늘부터 약 4개월까지만 보여 줌
+  var LAST_DAY=(function(){var d=new Date();d.setDate(d.getDate()+RANGE_DAYS);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')})();
+  var MIN_M=TODAY.slice(0,7),MAX_M=LAST_DAY.slice(0,7);
   var curM=MIN_M;
   // 고른 노선에서 오늘 이후 데이터가 있는 첫 달(없으면 이번 달)
   function startMonth(){var d=city[dir];if(!d)return MIN_M;var ks=Object.keys(d).filter(function(k){return k>=TODAY}).sort();return ks.length?ks[0].slice(0,7):MIN_M}
@@ -275,7 +278,7 @@
     var first=new Date(y,mo-1,1).getDay(),last=new Date(y,mo,0).getDate();
     for(var i=0;i<first;i++)g.appendChild(el('div'));
     for(var d=1;d<=last;d++){
-      var key=m+'-'+String(d).padStart(2,'0'),info=key<TODAY?null:data[key],cls=key<TODAY?'past':'unk',lines=[],label=mo+'월 '+d+'일';
+      var key=m+'-'+String(d).padStart(2,'0'),out=key<TODAY||key>LAST_DAY,info=out?null:data[key],cls=out?'past':'unk',lines=[],label=mo+'월 '+d+'일';
       if(info&&info.counted){var e=total(info,'eco'),p=total(info,'pr');cls=p.n>0?'pr':(e.n>0?'eco':'no');
         var et=e.n===0?'없음':(e.n>=9||e.txt.indexOf('+')>0?'9석+':e.n+'석');
         lines=[['big',et]];if(p.n>0)lines.push(['p','(프 '+(p.n>=9?'9석+':p.n+'석')+')']);
