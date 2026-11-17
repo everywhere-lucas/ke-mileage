@@ -3,7 +3,7 @@
 대한항공 마일리지(보너스 항공권) 좌석 달력 — `everywherelucas.com/mileage`
 
 - `public/mileage/index.html` 페이지
-- `public/mileage/data.json` 좌석 데이터 (주 2~3회 갱신, 실시간 아님)
+- `public/mileage/data.json` 좌석 데이터 (오늘~+90일 항공편별 좌석 수, 매일 한 도시씩 7일 순환 갱신)
 - `src/index.js` `/mileage` 경로만 처리하는 Cloudflare Worker
 - 기존 홈페이지(website2)와 별개로 배포됩니다.
 
