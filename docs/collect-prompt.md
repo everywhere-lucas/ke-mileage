@@ -12,7 +12,8 @@
 
 ## 범위: 오늘+1일 ~ 오늘+90일, 전부 항공편별 좌석 수(f 형식)
 - 1년 달력(있음/없음, a/ap)은 더 이상 쓰지 않습니다. 90일 전체를 좌석 수로 모읍니다.
-- 예상 조회 수: 매일 운항(JFK·LAX·CDG·SYD) 약 200회, 주 3~4회(FCO·LIS·BNE) 약 100회. 한 회차 250회를 절대 넘기지 마세요. 넘길 것 같으면 먼 날짜부터 줄이고 못 한 날은 기존 값을 그대로 둡니다.
+- 예외(도시별 연장): data.json 의 meta.until 에 도시 코드가 있으면(현재 FCO: "2027-05-31") 그 도시는 오늘+1일 ~ max(오늘+90일, meta.until) 까지 조회합니다. meta.until 은 그대로 유지하세요.
+- 예상 조회 수: 매일 운항(JFK·LAX·CDG·SYD) 약 200회, 주 3~4회(LIS·BNE) 약 100회, FCO(5월 말까지 연장) 약 200~220회. 한 회차 250회를 절대 넘기지 마세요. 넘길 것 같으면 먼 날짜부터 줄이고 못 한 날은 기존 값을 그대로 둡니다.
 
 ## 반드시 지킬 것
 - 조회만 합니다. 항공편 선택 후 예매·결제·대기예약으로 절대 진행하지 마세요.
@@ -21,6 +22,7 @@
 - 이름, 회원번호, 보유 마일 등 개인 정보는 data.json 에 절대 넣지 마세요.
 - 속도: 조회(검색·날짜 클릭) 사이 4~5.5초 무작위 대기. 절대 줄이지 마세요. 403·"비정상 접근"·보안문자 등이 나오면 즉시 중단하고 모은 것만 저장한 뒤 알리세요(2026-11-17 한 세션에서 약 160회째에 403이 나온 적 있음). 보안문자를 풀거나 우회하지 마세요.
 - 컴퓨터·내장 브라우저에 연결이 안 되면 한 번만 재시도하고, 안 되면 "맥북·윈도우 모두 꺼져 있거나 Claude 앱이 닫혀 있어서 수집하지 못했어요(오늘 도시는 7일 뒤 다시 돌아와요)"라고 알리고 끝내세요.
+- 같은 브라우저에서 다른 세션이 동시에 수집하면 조회가 두 배가 됩니다(2026-11-18 실제로 겹침). 시작할 때 git log 에 오늘 날짜 "좌석 데이터 중간 저장" 커밋이 이미 있거나, 대한항공 탭 localStorage 에 다른 수집 키(__ke 로 시작)의 calls 가 1분 사이에 늘고 있으면 조회하지 말고 "다른 세션이 이미 수집 중이라 건너뛰었어요"라고 알리고 끝내세요.
 - 시작할 때 git log 로 오늘(한국시간) 이미 "좌석 데이터 갱신 오늘날짜" 커밋이 있으면 조회하지 말고 "오늘은 이미 수집돼 있어서 건너뛰었어요"라고만 알리고 끝내세요.
 
 ## 조회 방법 (검증된 절차)
@@ -29,7 +31,7 @@
 - https://www.koreanair.com/ → "마일리지 예매" 탭 → 편도 → "가까운 날짜 함께 조회"는 체크 해제(체크하면 주변일자조회 화면으로 감) → 도착지: kds-fromto_1 shadowRoot 의 .ui-fromto__button.-order3 클릭 → 검색창이 뜨면 입력칸을 눌러 공항 코드 입력 → ArrowDown, Enter. 출발·도착 바꾸기 = kds-fromto_1 shadowRoot 의 kds-button_1.-order2 shadowRoot button.
 - 검색 전에 fetch/XMLHttpRequest 를 감싸 URL 에 /api/ap/booking/avail/ 이 들어간 응답을 window.__ke 에 모으세요(SPA 라 화면 이동 후에도 유지, 읽기만 함).
 - 날짜 선택: 날짜 칸(kds-dateinput_1 shadowRoot button)을 눌러 달력을 열고, 화면에 보이는(높이>0) 월 제목 .ui-datepicker__calendar-month-text(공백 정규화)로 달을 찾아 그 .ui-datepicker__calendar 안 td(.ui-datepicker__td-date 숫자) 클릭 → 같은 달력 대화상자 안의 "선택" kds-button 의 kds-button_1 shadowRoot button 클릭. 화면 밖에 숨은 다른 달력/"선택" 버튼이 있으니 반드시 보이는 달력 기준으로 고르고, 누른 뒤 달력이 닫혔는지 확인하세요. 안 열리면 Escape 후 다시 누르세요. 검색은 "항공편 검색" kds-button.
-- 결과 화면 위 날짜 띠(button.flexible-date__link)는 선택일 ±3일만 보입니다. 출발일을 D+3 으로 검색해 D~D+6 을 보고, 띠 버튼 글에 "선택 가능"이 있는 날만 JS click(같은 API 가 다시 불림, 1회 = 조회 1회). 다음 7일은 위쪽 "여정 요약 및 수정" 펼침(.ang-flight-widget__expand kds-button_1 shadowRoot button)에서 날짜를 바꾸고 그 안 "항공편 검색". 같은 패널의 바꾸기 버튼으로 오는 편도 같은 방식.
+- 결과 화면 위 날짜 띠(button.flexible-date__link)는 선택일 ±3일만 보입니다. 출발일을 D+3 으로 검색해 D~D+6 을 보고, 띠 버튼 글에 "선택 가능"이 있는 날만 JS click(같은 API 가 다시 불림, 1회 = 조회 1회). 띠의 날짜 숫자는 "07"처럼 앞에 0이 붙으니 숫자로 바꿔 비교하세요(문자열 비교 때문에 1~9일을 빠뜨린 적 있음). 새로 검색한 뒤에는 띠의 선택된 버튼(.-active)이 검색 날짜로 바뀔 때까지 기다린 뒤 읽으세요. 다음 7일은 위쪽 "여정 요약 및 수정" 펼침(.ang-flight-widget__expand kds-button_1 shadowRoot button)에서 날짜를 바꾸고 그 안 "항공편 검색". 같은 패널의 바꾸기 버튼으로 오는 편도 같은 방식.
 - 운항 없는 날로 검색하면 /booking/calendar-fare-bonus(주변일자조회)로 넘어갑니다. 주 3~4회 노선(FCO·LIS·BNE)은 data.json 의 기존 날짜나 띠의 운항일을 보고 운항하는 날로 검색하세요.
 - awardAvailability 응답 upsellBoundAvailList[0].availFlightList[] 중 flightInfoList 가 1개(직항)이고 가는 편 departureAirport==='ICN', 오는 편 arrivalAirport==='ICN' 인 편만. 편명 "KE"+flightNumber(3자리 미만이면 앞에 0), 출발시각 departureDateTime 8~12자리 "HH:MM", 기종 aircraftType, commercialFareFamilyList 의 fareFamily(KEBONUSEY=일반석, KEBONUSPR=프레스티지석, KEBONUSFC=일등석)별 seatCount(soldout 이면 0, 최대 9). 날짜는 응답의 departureDateTime 기준으로 기록(응답 날짜가 고른 날짜와 다르면 날짜 선택이 실패한 것이니 다시 하세요).
 - upsellCalendarFareList 의 emptyCode: NIT = 운항 없음 → 그 날짜 삭제. NAV = 운항하지만 좌석 없음 → 앞뒤 날의 편명으로 좌석 0 기록. peakSeason true 면 p:1.
@@ -37,7 +39,7 @@
 ## data.json 형식 (유지)
 { "updated": "<끝난 시각 +09:00 ISO>", "meta": {...기존 키 유지}, "routes": { "<도시코드>": { "out": { "checked": "<ISO>", "days": { "YYYY-MM-DD": { "f": [["KE017","14:30","74H",9,0,0], ...], "p": 1 } } }, "back": {...} } } }
 - f 항목: [편명, 출발시각, 기종, 일반석, 프레스티지석, 일등석], 9 = 9석 이상.
-- 오늘 도시의 오늘+1~+90일을 새 값으로 바꾸고(예전 a/ap/b 값도 f 로 대체), 오늘 이전과 오늘+90일 이후 날짜는 모든 도시에서 지우세요. 조회한 방향만 checked 갱신.
+- 오늘 도시의 오늘+1~+90일을 새 값으로 바꾸고(예전 a/ap/b 값도 f 로 대체), 오늘 이전과 오늘+90일 이후 날짜는 모든 도시에서 지우세요(단, meta.until 에 있는 도시는 max(오늘+90일, meta.until) 이후만 지움). 조회한 방향만 checked 갱신.
 
 ## 저장
 - 저장소가 없으면 add_repo(push)로 붙이고 클론, 있으면 git fetch origin 후 git checkout main && git reset --hard origin/main.
