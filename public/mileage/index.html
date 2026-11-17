@@ -182,14 +182,14 @@
   /* data.json → 화면용 형태로 변환
      f=[편명, 출발시각, 기종, 일반석, 프레스티지석, 일등석] → { counted, flights }
      b=[편명, 출발시각, 일반석, 프레스티지석, 일등석] (1/0 = 보너스 좌석 있음/없음) → { flags, flights }
-     a=1/0 → { avail },  p=1 → peak */
+     a=1/0 → { avail } (일반석 유무), ap=1 → 프레스티지석 있음,  p=1 → peak */
   function convert(days){
     var m={};
     Object.keys(days||{}).forEach(function(k){
       var d=days[k],o={peak:!!d.p};
       if(d.b){o.flags=true;o.flights=d.b.map(function(x){return {no:x[0],t:x[1],eco:x[2],pr:x[3],fc:x[4]}})}
       else if(d.f){o.counted=true;o.flights=d.f.map(function(x){return {no:x[0],t:x[1],ac:x[2],eco:x[3],pr:x[4],fc:x[5]}})}
-      else o.avail=!!d.a;
+      else{o.avail=!!d.a;o.prAvail=!!d.ap}
       m[k]=o;
     });
     return m;
@@ -211,7 +211,11 @@
       {code:'LIS',name:'리스본',country:'포르투갈'}]},
     {id:'au',name:'호주',cities:[
       {code:'SYD',name:'시드니',country:'호주'},
-      {code:'BNE',name:'브리즈번',country:'호주'}]}
+      {code:'BNE',name:'브리즈번',country:'호주'}]},
+    {id:'asia',name:'아시아',cities:[
+      {code:'NRT',name:'도쿄 나리타',country:'일본'},
+      {code:'HND',name:'도쿄 하네다',country:'일본'},
+      {code:'PVG',name:'상하이',country:'중국'}]}
   ];
 
   var region=REGIONS[0],city=region.cities[0],dir='out',sel=null;
@@ -270,7 +274,7 @@
     prev.addEventListener('click',function(){curM=addMonth(curM,-1);sel=null;renderCal();renderDetail()});
     next.addEventListener('click',function(){curM=addMonth(curM,1);sel=null;renderCal();renderDetail()});
     var h3=el('h3','',y+'년 '+mo+'월');
-    h3.appendChild(el('small','',!keys.length?'아직 확인 안 한 달':(flagged?'등급별 좌석 유무 확인':counted?'좌석 수 확인':'일반석 좌석 유무만 확인')));
+    h3.appendChild(el('small','',!keys.length?'아직 확인 안 한 달':(flagged?'등급별 좌석 유무 확인':counted?'좌석 수 확인':'날짜별 좌석 유무 확인')));
     nav.appendChild(prev);nav.appendChild(h3);nav.appendChild(next);card.appendChild(nav);
     var g=el('div','grid');
     '일월화수목금토'.split('').forEach(function(w){g.appendChild(el('div','dow',w))});
@@ -285,6 +289,7 @@
       else if(info&&info.flags){var ae=info.flights.some(function(f){return f.eco}),ap=info.flights.some(function(f){return f.pr});
         cls=ap?'pr':(ae?'eco':'no');lines=ap?[['big','프 있음']]:[['',ae?'일반석':'없음']];
         label+=ap?' 프레스티지석 있음':(ae?' 일반석만 있음':' 좌석 없음')}
+      else if(info&&info.prAvail){cls='pr';lines=[['big','프 있음']];label+=' 프레스티지석 있음'}
       else if(info){cls=info.avail?'eco':'no';lines=[['',info.avail?'좌석 있음':'없음']];label+=info.avail?' 일반석 있음':' 좌석 없음'}
       var c=el(info?'button':'div','d '+cls+(info&&info.peak?' peak':'')+(sel===key?' sel':''));
       c.appendChild(el('span','n',d));if(lines.length){var sw=el('span','seat');lines.forEach(function(l){sw.appendChild(el('span','s '+l[0],l[1]))});c.appendChild(sw)}
@@ -308,7 +313,7 @@
       info.flights.forEach(function(f){html+='<tr><td>'+f.no+' · '+f.t+'</td><td>'+(AC[f.ac]||f.ac)+'</td><td>'+seat(f.eco)+'</td><td>'+seat(f.pr)+'</td><td>'+seat(f.fc)+'</td></tr>'});
       html+='</tbody></table>';
     }else{
-      html+='<p style="margin:8px 0 0">'+(info.avail?'일반석 보너스 좌석 있음. 좌석 수와 프레스티지석은 아직 확인하지 않았어요.':'대한항공 달력에 좌석 없음으로 표시된 날이에요.')+'</p>';
+      html+='<p style="margin:8px 0 0">'+(info.prAvail?'프레스티지석 보너스 좌석이 있는 날이에요'+(info.avail?' (일반석도 있음)':'')+'. 항공편별 좌석 수는 출발이 가까워지면 확인해요.':info.avail?'일반석 보너스 좌석이 있는 날이에요. 항공편별 좌석 수는 출발이 가까워지면 확인해요.':'대한항공 달력에 좌석 없음으로 표시된 날이에요.')+'</p>';
     }
     box.innerHTML=html;
   }
