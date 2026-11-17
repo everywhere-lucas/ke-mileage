@@ -139,7 +139,7 @@
       <span><i style="border:1px dashed var(--line)"></i>확인 안 함</span>
       <span><i style="background:#ffe4e6;border:1px solid #fca5a5"></i>성수기 (마일 약 1.5배)</span>
     </div>
-    <p class="note">파란 칸 <b>프 있음</b> = 프레스티지석 보너스 좌석이 있는 날, <b>일반석</b> = 일반석만 있는 날이에요. 대한항공 보너스 좌석 조회(하루 1회 갱신) 기준이라 실제 예약 전에는 마일리지 예매 화면에서 한 번 더 확인하세요. 날짜를 누르면 항공편별로 볼 수 있어요.</p>
+    <p class="note">파란 칸 <b>프 있음</b> = 프레스티지석 보너스 좌석이 있는 날, <b>일반석</b> = 일반석만 있는 날이에요. 대한항공 보너스 좌석 조회 기준이고 주 2~3회만 갱신해서 실시간 좌석과 다를 수 있어요. 그래서 실제 예약 전에는 마일리지 예매 화면에서 한 번 더 확인하세요. 날짜를 누르면 항공편별로 볼 수 있어요.</p>
     <div class="detail" id="detail"></div>
   </section>
 
@@ -166,7 +166,7 @@
     <h2>이용 안내</h2>
     <ul>
       <li>대한항공 공식 서비스가 아닙니다. 대한항공 홈페이지 마일리지 예매 화면의 조회 결과를 옮겨 적은 자료예요.</li>
-      <li>실시간 정보가 아닙니다. 예매 전에 <a href="https://www.koreanair.com/">대한항공 홈페이지</a>에서 다시 확인하세요.</li>
+      <li>실시간 정보가 아닙니다. 좌석 데이터는 주 2~3회 갱신하므로 그 사이에 좌석이 생기거나 없어질 수 있어요. 예매 전에 <a href="https://www.koreanair.com/">대한항공 홈페이지</a>에서 다시 확인하세요.</li>
       <li>"수집 예정" 도시는 아직 데이터가 없습니다.</li>
       <li>2026년 12월 17일 출발편부터 아시아나 운항편이 대한항공(KE) 편명으로 바뀝니다.</li>
     </ul>
@@ -211,11 +211,7 @@
       {code:'LIS',name:'리스본',country:'포르투갈'}]},
     {id:'au',name:'호주',cities:[
       {code:'SYD',name:'시드니',country:'호주'},
-      {code:'BNE',name:'브리즈번',country:'호주'}]},
-    {id:'asia',name:'아시아',cities:[
-      {code:'NRT',name:'도쿄 나리타',country:'일본'},
-      {code:'HND',name:'도쿄 하네다',country:'일본'},
-      {code:'PVG',name:'상하이',country:'중국'}]}
+      {code:'BNE',name:'브리즈번',country:'호주'}]}
   ];
 
   var region=REGIONS[0],city=region.cities[0],dir='out',sel=null;
@@ -307,7 +303,7 @@
       var ox=function(v){return v?'있음':'–'};
       html+='<table><thead><tr><th>항공편</th><th>일반석</th><th>프레스티지석</th><th>일등석</th></tr></thead><tbody>';
       info.flights.forEach(function(f){html+='<tr><td>'+f.no+' · '+f.t+'</td><td>'+ox(f.eco)+'</td><td>'+ox(f.pr)+'</td><td>'+ox(f.fc)+'</td></tr>'});
-      html+='</tbody></table><p style="margin:8px 0 0;font-size:13px;color:#64748b">대한항공 보너스 좌석 조회 기준(하루 1회 갱신). 실시간 좌석은 마일리지 예매 화면에서 확인하세요.</p>';
+      html+='</tbody></table><p style="margin:8px 0 0;font-size:13px;color:#64748b">대한항공 보너스 좌석 조회 기준(주 2~3회 갱신, 실시간 아님). 실시간 좌석은 마일리지 예매 화면에서 확인하세요.</p>';
     }else if(info.counted){
       html+='<table><thead><tr><th>항공편</th><th>기종</th><th>일반석</th><th>프레스티지석</th><th>일등석</th></tr></thead><tbody>';
       info.flights.forEach(function(f){html+='<tr><td>'+f.no+' · '+f.t+'</td><td>'+(AC[f.ac]||f.ac)+'</td><td>'+seat(f.eco)+'</td><td>'+seat(f.pr)+'</td><td>'+seat(f.fc)+'</td></tr>'});
@@ -354,7 +350,7 @@
     })});
     region=REGIONS.filter(function(r){return r.cities.some(hasData)})[0]||REGIONS[0];
     city=region.cities.filter(hasData)[0]||region.cities[0];
-    $('stamp').textContent=data&&data.updated?'마지막 업데이트: '+kst(data.updated):'데이터를 불러오지 못했어요';
+    $('stamp').textContent=data&&data.updated?'마지막 업데이트: '+kst(data.updated)+' · 주 2~3회 갱신(실시간 아님)':'데이터를 불러오지 못했어요';
   }
   $('stamp').textContent='불러오는 중…';
   fetch('./data.json',{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json()})
