@@ -169,7 +169,7 @@
       <li>루카스가 직접 정리하는 비공식 자료예요. 대한항공 홈페이지 마일리지 예매 화면에서 조회한 결과를 옮겨 적었어요.</li>
       <li>달력의 큰 숫자는 일반석 남은 좌석, 괄호 안은 프레스티지석 남은 좌석이에요. "9석+"는 9석 이상이라는 뜻이에요.</li>
       <li>도시마다 일주일에 한 번 갱신해요. 실시간이 아니라서 그 사이에 좌석이 생기거나 없어질 수 있어요. 예매 전에 <a href="https://www.koreanair.com/">대한항공 홈페이지</a>에서 꼭 다시 확인하세요.</li>
-      <li>겨울 여행 기준으로 가는 편은 2027년 2월 말, 오는 편은 3월 15일 출발편까지 보여 드려요.</li>
+      <li>겨울 여행 기준으로 2027년 2월 말 출발편까지 보여 드려요.</li>
       <li>2026년 12월 17일 출발편부터 아시아나 운항편도 대한항공(KE) 편명으로 바뀌어요.</li>
     </ul>
   </section>
@@ -249,11 +249,10 @@
   function ym(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
   function addMonth(m,n){var d=new Date(+m.slice(0,4),+m.slice(5,7)-1+n,1);return ym(d)}
   var TODAY=(function(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')})();
-  var LAST_DAY='2027-02-28'; // 겨울 여행 기준: 가는 편은 2월 말까지(data.json meta.end)
-  var LAST_BACK='2027-03-15'; // 오는 편은 3월 15일까지(data.json meta.endBack)
+  var LAST_DAY='2027-02-28'; // 겨울 여행 기준: 가는 편·오는 편 모두 2월 말까지(data.json meta.end)
   var MIN_M=TODAY.slice(0,7);
   // 도시별로 더 먼 날짜까지 보여 줄 수 있음(data.json meta.until, 예: 로마 5월 말)
-  function lastDay(){return dir==='back'?LAST_BACK:LAST_DAY}
+  function lastDay(){return LAST_DAY}
   function maxM(){return lastDay().slice(0,7)}
   var curM=MIN_M;
   // 고른 노선에서 오늘 이후 데이터가 있는 첫 달(없으면 이번 달)
@@ -348,7 +347,6 @@
   function applyData(data){
     var routes=(data&&data.routes)||{},until=(data&&data.meta&&data.meta.until)||{};
     if(data&&data.meta&&data.meta.end)LAST_DAY=data.meta.end;
-    if(data&&data.meta&&data.meta.endBack)LAST_BACK=data.meta.endBack;
     REGIONS.forEach(function(r){r.cities.forEach(function(c){
       if(until[c.code])c.until=until[c.code];
       var rt=routes[c.code];if(!rt)return;
